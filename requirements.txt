@@ -1,0 +1,11 @@
+pydantic>=2.6
+python-dotenv>=1.0
+ollama>=0.3.0
+sentence-transformers>=3.0
+numpy>=1.26,<2.0
+scikit-learn>=1.4
+fastapi>=0.110
+uvicorn[standard]>=0.29
+tabulate>=0.9
+pytest>=8.0
+streamlit>=1.33
