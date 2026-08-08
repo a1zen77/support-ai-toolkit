@@ -29,12 +29,11 @@ def _find_ticket_error_codes(text: str) -> set[str]:
     return set(_TICKET_CODE_RE.findall(text))
 
 
-def retrieve(query_text: str, top_k: int = 3) -> list[KBMatch]:
-    """
-    Given raw ticket text (subject + body), return up to top_k ranked KB matches.
-    """
+def _retrieve_raw(query_text: str, top_k: int = 3) -> list[tuple[KBChunk, float, str]]:
+    """Returns (chunk, score, reason) tuples - the shared logic behind both
+    public entry points below."""
     idx = build_index()
-    matches: dict[str, KBMatch] = {}  # keyed by doc_path+section to dedupe
+    picked: dict[str, tuple[KBChunk, float, str]] = {}  # keyed to dedupe
 
     def key(chunk: KBChunk) -> str:
         return f"{chunk.doc_path}#{chunk.section_title}"
@@ -45,12 +44,8 @@ def retrieve(query_text: str, top_k: int = 3) -> list[KBMatch]:
         for chunk in idx.chunks:
             hit_codes = ticket_codes & set(chunk.error_codes)
             if hit_codes:
-                matches[key(chunk)] = KBMatch(
-                    doc_path=chunk.doc_path,
-                    doc_title=chunk.doc_title,
-                    matched_reason=f"exact error code match: {', '.join(sorted(hit_codes))}",
-                    relevance_score=EXACT_MATCH_SCORE,
-                )
+                reason = f"exact error code match: {', '.join(sorted(hit_codes))}"
+                picked[key(chunk)] = (chunk, EXACT_MATCH_SCORE, reason)
 
     # 2. Semantic similarity, fills remaining slots
     model: SentenceTransformer = _embedder()
@@ -59,24 +54,41 @@ def retrieve(query_text: str, top_k: int = 3) -> list[KBMatch]:
 
     ranked = np.argsort(-sims)
     for i in ranked:
-        if len(matches) >= top_k:
+        if len(picked) >= top_k:
             break
         chunk = idx.chunks[i]
         score = float(sims[i])
         if score < SEMANTIC_SCORE_FLOOR:
             break  # sorted descending, so nothing after this clears the floor either
         k = key(chunk)
-        if k in matches:
+        if k in picked:
             continue  # already have this section via exact match
-        matches[k] = KBMatch(
-            doc_path=chunk.doc_path,
-            doc_title=chunk.doc_title,
-            matched_reason=f"semantic similarity ({score:.2f}) to \"{chunk.section_title}\"",
-            relevance_score=score,
-        )
+        reason = f"semantic similarity ({score:.2f}) to \"{chunk.section_title}\""
+        picked[k] = (chunk, score, reason)
 
-    ranked_matches = sorted(matches.values(), key=lambda m: -m.relevance_score)
-    return ranked_matches[:top_k]
+    ranked_results = sorted(picked.values(), key=lambda t: -t[1])
+    return ranked_results[:top_k]
+
+
+def retrieve(query_text: str, top_k: int = 3) -> list[KBMatch]:
+    """Given raw ticket text (subject + body), return up to top_k ranked KB matches."""
+    return [
+        KBMatch(doc_path=c.doc_path, doc_title=c.doc_title, matched_reason=reason, relevance_score=score)
+        for c, score, reason in _retrieve_raw(query_text, top_k)
+    ]
+
+
+def retrieve_with_context(query_text: str, top_k: int = 3) -> list[tuple[KBMatch, str]]:
+    """Like retrieve(), but also returns each match's raw section text -
+    used when the caller needs actual KB content, e.g. to ground a drafted
+    response instead of letting the LLM invent steps."""
+    return [
+        (
+            KBMatch(doc_path=c.doc_path, doc_title=c.doc_title, matched_reason=reason, relevance_score=score),
+            c.text,
+        )
+        for c, score, reason in _retrieve_raw(query_text, top_k)
+    ]
 
 
 if __name__ == "__main__":
