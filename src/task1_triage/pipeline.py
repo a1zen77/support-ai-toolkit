@@ -31,7 +31,18 @@ def triage_ticket(ticket: TicketInput) -> TriageResult:
     query_text = f"{ticket.subject}\n{ticket.body}"
     kb_results = retrieve_with_context(query_text, top_k=2)
     kb_matches = [m for m, _ in kb_results]
-    kb_context = "\n\n---\n\n".join(text for _, text in kb_results) if kb_results else None
+
+    # Use a stricter threshold for what actually grounds the draft than what
+    # we're willing to surface as a "possible match" to the agent. A 0.38
+    # semantic match is worth showing the agent as a maybe; it's not solid
+    # enough to let the LLM build specific customer-facing instructions on.
+    MIN_SCORE_FOR_DRAFT_GROUNDING = 0.5
+    strong_results = [
+        (m, text) for m, text in kb_results if m.relevance_score >= MIN_SCORE_FOR_DRAFT_GROUNDING
+    ]
+    kb_context = (
+        "\n\n---\n\n".join(text for _, text in strong_results) if strong_results else None
+    )
 
     # 3. Routing - deterministic, not LLM-based (see routing.py)
     team = determine_responder_team(
