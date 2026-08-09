@@ -69,6 +69,17 @@ def triage_ticket(ticket: TicketInput) -> TriageResult:
         draft_response=draft,
     )
 
+def triage_raw_text(raw_text: str) -> TriageResult:
+    """
+    Entry point for unstructured free-text tickets (no subject/body already
+    split out) - satisfies the brief's "text or JSON" input requirement.
+    Parses raw_text into a TicketInput, then runs the normal pipeline.
+    """
+    from src.task1_triage.raw_input import parse_raw_ticket_text
+
+    ticket = parse_raw_ticket_text(raw_text)
+    return triage_ticket(ticket)
+
 
 if __name__ == "__main__":
     # Quick manual check: `python -m src.task1_triage.pipeline`

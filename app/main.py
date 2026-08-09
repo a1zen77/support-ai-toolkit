@@ -33,3 +33,21 @@ def triage(ticket: TicketInput) -> TriageResult:
         raise HTTPException(status_code=502, detail=f"LLM failed to produce valid output: {e}")
     except ValidationError as e:
         raise HTTPException(status_code=422, detail=str(e))
+
+from pydantic import BaseModel
+
+from src.task1_triage.pipeline import triage_raw_text
+
+
+class RawTicketInput(BaseModel):
+    text: str
+
+
+@app.post("/triage/raw", response_model=TriageResult)
+def triage_raw(payload: RawTicketInput) -> TriageResult:
+    try:
+        return triage_raw_text(payload.text)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except LLMGenerationError as e:
+        raise HTTPException(status_code=502, detail=f"LLM failed to produce valid output: {e}")
