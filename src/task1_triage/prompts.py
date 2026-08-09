@@ -35,8 +35,12 @@ P4 - Low: cosmetic issues, feature requests, general questions with no
 # ---------------------------------------------------------------------------
 # CLASSIFY_PROMPT
 # v1 - 2026-08 - initial version
+# v2 - 2026-08 - explicit instruction to always commit to one product_area
+#      from the valid list, even under ambiguity (was returning "" on
+#      tickets that don't explicitly name a product, e.g. generic "billing
+#      dashboard" wording) - express uncertainty in reasoning text instead
 # ---------------------------------------------------------------------------
-CLASSIFY_PROMPT_VERSION = "classify_v1"
+CLASSIFY_PROMPT_VERSION = "classify_v2"
 
 CLASSIFY_SYSTEM = f"""
 You are a support ticket triage assistant for a company with five products:
@@ -53,6 +57,14 @@ Urgency tiers:
 Read the ticket and classify it. Give brief, concrete reasoning (1-2 sentences)
 for both category and urgency - reference specific words or phrases from the
 ticket, don't just restate the label.
+
+IMPORTANT: product_area is REQUIRED and must always be exactly one value from
+the valid list for whichever product you choose - never leave it blank. Even
+if the ticket doesn't explicitly name a product or area, infer the single
+best match from context (e.g. a "dashboard" complaint maps to AnalyticsHub's
+"Dashboard" area even if the ticket never says "AnalyticsHub"). If you are
+genuinely uncertain between two options, pick the more likely one and note
+the ambiguity in category_reasoning - do not leave product_area empty.
 """.strip()
 
 
@@ -98,4 +110,9 @@ def build_draft_response_prompt(
 # ---------------------------------------------------------------------------
 PROMPT_CHANGELOG = """
 2026-08 - classify_v1, draft_response_v1: initial versions.
+2026-08 - classify_v2: added explicit instruction requiring product_area to
+          always be a concrete, non-blank value from the valid list, even
+          under ambiguity. Fixes ClassificationOutput validation failures on
+          tickets that don't explicitly name a product (e.g. generic
+          "billing dashboard" wording resolved to product_area='').
 """.strip()
