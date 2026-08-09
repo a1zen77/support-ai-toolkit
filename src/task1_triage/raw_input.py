@@ -19,6 +19,24 @@ _FIRST_SENTENCE_RE = re.compile(r"^(.{10,120}?[.!?])(\s|$)")
 MAX_DERIVED_SUBJECT_LEN = 80
 
 
+def _derive_subject(text: str) -> str:
+    """Used only when there's no explicit label and no clear first line -
+    pull a short subject from the first sentence, or truncate at a word
+    boundary if there's no sentence-ending punctuation at all."""
+    m = _FIRST_SENTENCE_RE.match(text)
+    if m:
+        return m.group(1).strip()
+
+    if len(text) <= MAX_DERIVED_SUBJECT_LEN:
+        return text
+
+    truncated = text[:MAX_DERIVED_SUBJECT_LEN]
+    last_space = truncated.rfind(" ")
+    if last_space > 0:
+        truncated = truncated[:last_space]
+    return truncated.strip() + "..."
+
+
 def parse_raw_ticket_text(text: str) -> TicketInput:
     """
     Heuristically splits free-text into (subject, body):
@@ -50,14 +68,7 @@ def parse_raw_ticket_text(text: str) -> TicketInput:
         return TicketInput(subject=subject, body=body or subject)
 
     # Case 3: no clear structure - derive a short subject, keep full text as body
-    m = _FIRST_SENTENCE_RE.match(text)
-    if m:
-        subject = m.group(1).strip()
-    else:
-        subject = text[:MAX_DERIVED_SUBJECT_LEN].strip()
-        if len(text) > MAX_DERIVED_SUBJECT_LEN:
-            subject += "..."
-
+    subject = _derive_subject(text)
     return TicketInput(subject=subject, body=text)
 
 
