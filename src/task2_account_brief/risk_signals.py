@@ -40,23 +40,25 @@ def split_sentences(text: str) -> list[str]:
 _PATTERNS: dict[RiskCategory, list[re.Pattern]] = {
     RiskCategory.CHURN_INTENT: [
         re.compile(r"\bcancel(l?ing)?\s+(our|my|the)\s+(subscription|contract|account|plan)\b", re.I),
-        re.compile(r"\b(consider(ing)?|evaluat(ing|e))\s+(switching|moving|migrating)\b", re.I),
+        re.compile(r"\b(consider(ing)?|evaluat(ing|e))\s+.{0,40}\b(compet(itor|ing|itors)|alternative)\b", re.I),
         re.compile(r"\bnot\s+renew(ing)?\b", re.I),
-        re.compile(r"\bconsidering\s+.{0,40}\bcompetitor\b", re.I),
         re.compile(r"\bwe\s+(are|'re)\s+(done|out|finished)\s+with\b", re.I),
         re.compile(r"\blooking\s+at\s+(other\s+)?(vendors|alternatives|options)\b", re.I),
+        re.compile(r"\bvendor\s+evaluation\b", re.I),
     ],
     RiskCategory.ESCALATION: [
         re.compile(r"\b(speak|talk)\s+to\s+(a|your)\s+manager\b", re.I),
         re.compile(r"\bescalat(e|ing|ed|ion)\b", re.I),
         re.compile(r"\bformal\s+complaint\b", re.I),
         re.compile(r"\bneed(s)?\s+to\s+be\s+escalated\b", re.I),
+        re.compile(r"\b\d+\s+consecutive\s+(P1|P2|critical)\b", re.I),
     ],
     RiskCategory.REPEATED_ISSUE: [
         re.compile(r"\b(again|still\s+(not|hasn't|isn't))\b", re.I),
         re.compile(r"\b(third|fourth|multiple|several)\s+time(s)?\b", re.I),
         re.compile(r"\bkeeps?\s+happening\b", re.I),
         re.compile(r"\bsame\s+issue\s+(as\s+before|again)\b", re.I),
+        re.compile(r"\b\d+\s+(P1|P2)\s+tickets\s+in\s+the\s+last\s+\d+\s+days\b", re.I),
     ],
     RiskCategory.SLA_BREACH: [
         re.compile(r"\b(missed|breach(ed)?)\s+(the\s+)?(sla|deadline|response\s+time)\b", re.I),
@@ -64,7 +66,7 @@ _PATTERNS: dict[RiskCategory, list[re.Pattern]] = {
         re.compile(r"\bpromised\s+.{0,30}\b(and|but)\s+(never|didn't|did\s+not)\b", re.I),
     ],
     RiskCategory.EXECUTIVE_ATTENTION: [
-        re.compile(r"\b(our\s+)?(ceo|cto|coo|vp|vice\s+president|director)\s+(is|has|wants|asked)\b", re.I),
+        re.compile(r"\b(our\s+)?(ceo|cto|coo|vp|vice\s+president|director|decision\s+maker)\s+(is|has|wants|asked|considering)\b", re.I),
         re.compile(r"\bexecutive\s+(team|sponsor|leadership)\b", re.I),
         re.compile(r"\bleadership\s+is\s+(asking|concerned|involved)\b", re.I),
     ],
@@ -75,7 +77,7 @@ _PATTERNS: dict[RiskCategory, list[re.Pattern]] = {
         re.compile(r"\blosing\s+(confidence|trust|patience)\b", re.I),
     ],
     RiskCategory.COMPETITOR_MENTION: [
-        re.compile(r"\bcompetitor(s)?\b", re.I),
+        re.compile(r"\bcompet(itor|itors|ing)\b", re.I),
         re.compile(r"\balternative(s)?\s+(product|vendor|solution)\b", re.I),
     ],
 }
