@@ -94,14 +94,20 @@ def _case_billing_routes_to_billing_team() -> EvalCase:
                 passed=False, score=0.5,
                 reasoning=f"Category correct but routing didn't go to Billing Team: {output.recommended_team}",
             )
-        return ScoreResult(passed=True, score=1.0, reasoning="Correctly categorized and routed to Billing Team")
+        if output.product_area == "Billing":
+            return ScoreResult(
+                passed=False, score=0.4,
+                reasoning="product_area incorrectly set to 'Billing' - that's a category value, not a valid product_area (regression guard, see classify_v4)",
+            )
+        return ScoreResult(passed=True, score=1.0, reasoning="Correctly categorized, routed, and product_area is a real technical area (not 'Billing')")
 
     return EvalCase(
-        id="task1_billing_routing",
+        id="task1_adversarial_billing_no_product_signal",
         task="task1_triage",
-        description="Billing question should classify as Billing and route to Billing Team",
+        description="ADVERSARIAL: billing question with zero product-name signal - regression guard for classify_v3/v4 fixes",
         run=lambda: triage_ticket(ticket),
         score=score,
+        is_adversarial=True,
     )
 
 
