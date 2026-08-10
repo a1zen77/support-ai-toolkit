@@ -1,0 +1,77 @@
+{
+  "generated_at": "2026-08-10T11:45:30.787551+00:00",
+  "summary": {
+    "total_cases": 6,
+    "total_passed": 5,
+    "mean_score": 0.833
+  },
+  "by_task": {
+    "task1_triage": {
+      "total_cases": 6,
+      "passed": 5,
+      "mean_score": 0.8333333333333334,
+      "cases": [
+        {
+          "id": "task1_clear_p1_urgency",
+          "description": "Unambiguous production outage should classify as P1",
+          "is_adversarial": false,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "Correctly classified as P1",
+          "duration_seconds": 36.73,
+          "error": null
+        },
+        {
+          "id": "task1_billing_routing",
+          "description": "Billing question should classify as Billing and route to Billing Team",
+          "is_adversarial": false,
+          "passed": false,
+          "score": 0.0,
+          "reasoning": "run() raised an exception before scoring could occur.",
+          "duration_seconds": 21.69,
+          "error": "LLMGenerationError: Failed to get valid ClassificationOutput after 3 attempts. Last error: 1 validation error for ClassificationOutput\n  Value error, product_area '' is not valid for product 'CloudSync'. Valid areas for CloudSync: ['Bandwidth Limits', 'Conflict Resolution', 'File Sync', 'Integrations', 'Permissions'] [type=value_error, input_value={'product': 'CloudSync', ...es not block progress.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error\nTraceback (most recent call last):\n  File \"/Users/sb77/Desktop/support-ai-toolkit/eval/harness_core.py\", line 152, in run_case\n    output = case.run()\n             ^^^^^^^^^^\n  File \"/Users/sb77/Desktop/support-ai-toolkit/eval/task1_cases.py\", line 103, in <lambda>\n    run=lambda: triage_ticket(ticket),\n                ^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/sb77/Desktop/support-ai-toolkit/src/task1_triage/pipeline.py\", line 23, in triage_ticket\n    classification = generate_structured(\n                     ^^^^^^^^^^^^^^^^^^^^\nsrc.common.ollama_client.LLMGenerationError: Failed to get valid ClassificationOutput after 3 attempts. Last error: 1 validation error for ClassificationOutput\n  Value error, product_area '' is not valid for product 'CloudSync'. Valid areas for CloudSync: ['Bandwidth Limits', 'Conflict Resolution', 'File Sync', 'Integrations', 'Permissions'] [type=value_error, input_value={'product': 'CloudSync', ...es not block progress.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error\n"
+        },
+        {
+          "id": "task1_kb_exact_error_code_match",
+          "description": "A ticket citing a known error code should surface an exact-match KB doc",
+          "is_adversarial": false,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "Found exact KB match: troubleshooting/performance-and-integrations.md",
+          "duration_seconds": 20.53,
+          "error": null
+        },
+        {
+          "id": "task1_product_area_never_blank",
+          "description": "Regression guard: product_area must never be blank (classify_v2 fix)",
+          "is_adversarial": false,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "product_area is non-blank and schema-valid",
+          "duration_seconds": 22.34,
+          "error": null
+        },
+        {
+          "id": "task1_draft_response_quality_judge",
+          "description": "LLM-judge: draft response is professional and doesn't fabricate unsupported specifics",
+          "is_adversarial": false,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "[judge: YES] Stays professional, avoids promising a fix timeline, and does not invent technical details.",
+          "duration_seconds": 45.69,
+          "error": null
+        },
+        {
+          "id": "task1_adversarial_empty_body",
+          "description": "ADVERSARIAL: near-empty ticket (subject='help', body='') should not crash or fabricate specifics",
+          "is_adversarial": true,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "Handled empty/near-empty input without crashing and appropriately asked for more detail",
+          "duration_seconds": 26.57,
+          "error": null
+        }
+      ]
+    }
+  }
+}
