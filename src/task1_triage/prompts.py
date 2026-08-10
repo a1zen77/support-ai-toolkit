@@ -37,16 +37,17 @@ P4 - Low: cosmetic issues, feature requests, general questions with no
 # v1 - 2026-08 - initial version
 # v2 - 2026-08 - explicit instruction to always commit to one product_area
 #      from the valid list, even under ambiguity
-# v3 - 2026-08 - fixed a bug caught by the eval harness (task1_billing_routing
-#      case): tickets with NO product signal at all (e.g. a seat-count/
-#      invoice question that never names a product) caused the model to
-#      guess a different product on every retry attempt, each paired with
-#      an invalid product_area, exhausting all 3 retries and raising
-#      LLMGenerationError. Added explicit instruction to commit to a
-#      single product guess and stay consistent even under total ambiguity,
-#      expressing the uncertainty in reasoning text instead of re-guessing.
+# v3 - 2026-08 - fixed retry-thrashing on tickets with zero product signal
+#      (eval harness: task1_billing_routing case)
+# v4 - 2026-08 - fixed a follow-on bug from v3: after being told to always
+#      commit to a product_area, the model started putting "Billing"
+#      itself into product_area for billing-topic tickets - but "Billing"
+#      is a CATEGORY value, not a valid product_area for any product (see
+#      PRODUCT_AREAS - no product has a "Billing" area). Added an explicit
+#      guard against this specific field confusion, caught again by the
+#      eval harness re-running the same case after the v3 fix.
 # ---------------------------------------------------------------------------
-CLASSIFY_PROMPT_VERSION = "classify_v3"
+CLASSIFY_PROMPT_VERSION = "classify_v4"
 
 CLASSIFY_SYSTEM = f"""
 You are a support ticket triage assistant for a company with five products:
@@ -71,6 +72,15 @@ best match from context (e.g. a "dashboard" complaint maps to AnalyticsHub's
 "Dashboard" area even if the ticket never says "AnalyticsHub"). If you are
 genuinely uncertain between two options, pick the more likely one and note
 the ambiguity in category_reasoning - do not leave product_area empty.
+
+CRITICAL - do not confuse product_area with category: "Billing" is a valid
+value for category, but it is NEVER a valid product_area for any product -
+no product in the valid list above has a "Billing" area. If a ticket is
+about billing, invoicing, or seat counts, set category="Billing" but you
+must STILL choose a real technical product_area (e.g. "SSO" if it's about
+authentication-related billing, or your best guess at which product the
+account likely uses) - never write "Billing" into the product_area field
+itself.
 
 If a ticket gives NO usable signal at all about which product is involved
 (e.g. a generic billing, seat-count, or account question that doesn't
