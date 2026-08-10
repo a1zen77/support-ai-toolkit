@@ -36,11 +36,17 @@ P4 - Low: cosmetic issues, feature requests, general questions with no
 # CLASSIFY_PROMPT
 # v1 - 2026-08 - initial version
 # v2 - 2026-08 - explicit instruction to always commit to one product_area
-#      from the valid list, even under ambiguity (was returning "" on
-#      tickets that don't explicitly name a product, e.g. generic "billing
-#      dashboard" wording) - express uncertainty in reasoning text instead
+#      from the valid list, even under ambiguity
+# v3 - 2026-08 - fixed a bug caught by the eval harness (task1_billing_routing
+#      case): tickets with NO product signal at all (e.g. a seat-count/
+#      invoice question that never names a product) caused the model to
+#      guess a different product on every retry attempt, each paired with
+#      an invalid product_area, exhausting all 3 retries and raising
+#      LLMGenerationError. Added explicit instruction to commit to a
+#      single product guess and stay consistent even under total ambiguity,
+#      expressing the uncertainty in reasoning text instead of re-guessing.
 # ---------------------------------------------------------------------------
-CLASSIFY_PROMPT_VERSION = "classify_v2"
+CLASSIFY_PROMPT_VERSION = "classify_v3"
 
 CLASSIFY_SYSTEM = f"""
 You are a support ticket triage assistant for a company with five products:
@@ -65,6 +71,15 @@ best match from context (e.g. a "dashboard" complaint maps to AnalyticsHub's
 "Dashboard" area even if the ticket never says "AnalyticsHub"). If you are
 genuinely uncertain between two options, pick the more likely one and note
 the ambiguity in category_reasoning - do not leave product_area empty.
+
+If a ticket gives NO usable signal at all about which product is involved
+(e.g. a generic billing, seat-count, or account question that doesn't
+mention any product name, feature, or module), you still MUST commit to a
+single specific product and a valid product_area for it - pick the product
+you judge most likely to generate this kind of request, and clearly state
+in category_reasoning that the product could not be determined from the
+ticket text and was your best guess. Never leave product_area blank and
+never treat this uncertainty as a reason to withhold a classification.
 """.strip()
 
 
