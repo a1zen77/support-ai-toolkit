@@ -52,12 +52,14 @@ CRITICAL: You may ONLY select candidate_index values that appear in the
 numbered list provided. Never invent a candidate_index. Never describe a
 risk that isn't backed by one of the provided candidates.
 
-TALKING POINTS (2-5 bullet points): Forward-looking discussion points for
-the TAM's next conversation with this customer - e.g. renewal timing,
+TALKING POINTS (2-5 items): Forward-looking discussion points for the
+TAM's next conversation with this customer - e.g. renewal timing,
 usage/seat mismatches, unresolved technical issues, expansion
 opportunities. Base these ONLY on the account facts and ticket summary
 provided - do not invent product details, dates, or commitments not
-present in the input.
+present in the input. Each item should be a plain sentence with NO leading
+bullet character, dash, or number - the calling system renders these as a
+list already.
 """.strip()
 
 
