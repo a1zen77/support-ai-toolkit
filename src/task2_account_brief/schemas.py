@@ -30,6 +30,20 @@ class RiskCandidate(BaseModel):
     matched_pattern: str  # the literal keyword/phrase that triggered this match
     sentence_index: int  # position within the source text, for dedup/ordering
 
+class SelectedRisk(BaseModel):
+    candidate_index: int = Field(
+        ..., description="Index into the provided risk_candidates list. Must reference an existing candidate - never invent one."
+    )
+    explanation: str = Field(
+        ..., description="1-2 sentence explanation of why this candidate matters for account health, in your own words."
+    )
+
+
+class BriefSynthesisOutput(BaseModel):
+    executive_summary: str
+    selected_risks: list[SelectedRisk] = Field(default_factory=list)
+    talking_points: list[str] = Field(default_factory=list)
+
 
 if __name__ == "__main__":
     # Sanity check: model constructs and serializes cleanly.
