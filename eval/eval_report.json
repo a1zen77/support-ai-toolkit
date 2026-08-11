@@ -1,74 +1,84 @@
 {
-  "generated_at": "2026-08-10T11:57:18.589301+00:00",
+  "generated_at": "2026-08-11T06:01:59.313441+00:00",
   "summary": {
-    "total_cases": 6,
-    "total_passed": 6,
+    "total_cases": 7,
+    "total_passed": 7,
     "mean_score": 1.0
   },
   "by_task": {
-    "task1_triage": {
-      "total_cases": 6,
-      "passed": 6,
+    "task2_account_brief": {
+      "total_cases": 7,
+      "passed": 7,
       "mean_score": 1.0,
       "cases": [
         {
-          "id": "task1_clear_p1_urgency",
-          "description": "Unambiguous production outage should classify as P1",
+          "id": "task2_verbatim_quotes_end_to_end",
+          "description": "Every RiskFlag.quote in the final brief must be an exact substring of its source",
           "is_adversarial": false,
           "passed": true,
           "score": 1.0,
-          "reasoning": "Correctly classified as P1",
-          "duration_seconds": 30.64,
+          "reasoning": "All 1 risk flag quote(s) verified verbatim in source",
+          "duration_seconds": 22.39,
           "error": null
         },
         {
-          "id": "task1_adversarial_billing_no_product_signal",
-          "description": "ADVERSARIAL: billing question with zero product-name signal - regression guard for classify_v3/v4 fixes",
+          "id": "task2_determinism",
+          "description": "Same account input twice must produce byte-identical AccountBrief (temp=0, seed=42)",
+          "is_adversarial": false,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "Two runs on identical input produced byte-identical output",
+          "duration_seconds": 19.31,
+          "error": null
+        },
+        {
+          "id": "task2_talking_points_no_artifacts",
+          "description": "Regression guard: talking_points must be plain sentences, no leading dash/bullet/number",
+          "is_adversarial": false,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "All 2 talking points are clean plain sentences",
+          "duration_seconds": 9.98,
+          "error": null
+        },
+        {
+          "id": "task2_executive_summary_grounded",
+          "description": "Executive summary should reference real account facts, not generic boilerplate",
+          "is_adversarial": false,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "Executive summary references 2/3 checked grounding signals from real account data",
+          "duration_seconds": 9.52,
+          "error": null
+        },
+        {
+          "id": "task2_risk_explanation_adds_value_judge",
+          "description": "LLM-judge: risk explanation interprets the quote rather than just restating it",
+          "is_adversarial": false,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "[judge: YES] The explanation provides meaningful context by inferring potential churn intent, which is crucial for assessing account health.",
+          "duration_seconds": 12.57,
+          "error": null
+        },
+        {
+          "id": "task2_adversarial_zero_signal_account",
+          "description": "ADVERSARIAL: account with zero risk candidates must not have fabricated risk flags",
           "is_adversarial": true,
           "passed": true,
           "score": 1.0,
-          "reasoning": "Correctly categorized, routed, and product_area is a real technical area (not 'Billing')",
-          "duration_seconds": 24.63,
+          "reasoning": "Correctly produced zero risk flags for an account with zero real candidates - no fabrication",
+          "duration_seconds": 16.18,
           "error": null
         },
         {
-          "id": "task1_kb_exact_error_code_match",
-          "description": "A ticket citing a known error code should surface an exact-match KB doc",
-          "is_adversarial": false,
-          "passed": true,
-          "score": 1.0,
-          "reasoning": "Found exact KB match: troubleshooting/performance-and-integrations.md",
-          "duration_seconds": 32.55,
-          "error": null
-        },
-        {
-          "id": "task1_product_area_never_blank",
-          "description": "Regression guard: product_area must never be blank (classify_v2 fix)",
-          "is_adversarial": false,
-          "passed": true,
-          "score": 1.0,
-          "reasoning": "product_area is non-blank and schema-valid",
-          "duration_seconds": 38.16,
-          "error": null
-        },
-        {
-          "id": "task1_draft_response_quality_judge",
-          "description": "LLM-judge: draft response is professional and doesn't fabricate unsupported specifics",
-          "is_adversarial": false,
-          "passed": true,
-          "score": 1.0,
-          "reasoning": "[judge: YES] Stays professional, avoids promising a fix timeline, and does not invent technical details.",
-          "duration_seconds": 53.0,
-          "error": null
-        },
-        {
-          "id": "task1_adversarial_empty_body",
-          "description": "ADVERSARIAL: near-empty ticket (subject='help', body='') should not crash or fabricate specifics",
+          "id": "task2_adversarial_unknown_account",
+          "description": "ADVERSARIAL: nonexistent company must fail gracefully with a clear ValueError, not crash or silently succeed",
           "is_adversarial": true,
           "passed": true,
           "score": 1.0,
-          "reasoning": "Handled empty/near-empty input without crashing and appropriately asked for more detail",
-          "duration_seconds": 29.66,
+          "reasoning": "Unknown company raises a clear, correctly-typed ValueError with an actionable message",
+          "duration_seconds": 0.0,
           "error": null
         }
       ]
