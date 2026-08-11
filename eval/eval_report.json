@@ -1,11 +1,78 @@
 {
-  "generated_at": "2026-08-11T06:01:59.313441+00:00",
+  "generated_at": "2026-08-11T06:05:16.795423+00:00",
   "summary": {
-    "total_cases": 7,
-    "total_passed": 7,
+    "total_cases": 13,
+    "total_passed": 13,
     "mean_score": 1.0
   },
   "by_task": {
+    "task1_triage": {
+      "total_cases": 6,
+      "passed": 6,
+      "mean_score": 1.0,
+      "cases": [
+        {
+          "id": "task1_clear_p1_urgency",
+          "description": "Unambiguous production outage should classify as P1",
+          "is_adversarial": false,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "Correctly classified as P1",
+          "duration_seconds": 31.52,
+          "error": null
+        },
+        {
+          "id": "task1_adversarial_billing_no_product_signal",
+          "description": "ADVERSARIAL: billing question with zero product-name signal - regression guard for classify_v3/v4 fixes",
+          "is_adversarial": true,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "Correctly categorized, routed, and product_area is a real technical area (not 'Billing')",
+          "duration_seconds": 24.44,
+          "error": null
+        },
+        {
+          "id": "task1_kb_exact_error_code_match",
+          "description": "A ticket citing a known error code should surface an exact-match KB doc",
+          "is_adversarial": false,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "Found exact KB match: troubleshooting/performance-and-integrations.md",
+          "duration_seconds": 26.54,
+          "error": null
+        },
+        {
+          "id": "task1_product_area_never_blank",
+          "description": "Regression guard: product_area must never be blank (classify_v2 fix)",
+          "is_adversarial": false,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "product_area is non-blank and schema-valid",
+          "duration_seconds": 23.41,
+          "error": null
+        },
+        {
+          "id": "task1_draft_response_quality_judge",
+          "description": "LLM-judge: draft response is professional and doesn't fabricate unsupported specifics",
+          "is_adversarial": false,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "[judge: YES] Stays professional, avoids promising a fix timeline, and does not invent technical details.",
+          "duration_seconds": 36.21,
+          "error": null
+        },
+        {
+          "id": "task1_adversarial_empty_body",
+          "description": "ADVERSARIAL: near-empty ticket (subject='help', body='') should not crash or fabricate specifics",
+          "is_adversarial": true,
+          "passed": true,
+          "score": 1.0,
+          "reasoning": "Handled empty/near-empty input without crashing and appropriately asked for more detail",
+          "duration_seconds": 29.08,
+          "error": null
+        }
+      ]
+    },
     "task2_account_brief": {
       "total_cases": 7,
       "passed": 7,
@@ -18,7 +85,7 @@
           "passed": true,
           "score": 1.0,
           "reasoning": "All 1 risk flag quote(s) verified verbatim in source",
-          "duration_seconds": 22.39,
+          "duration_seconds": 25.64,
           "error": null
         },
         {
@@ -28,7 +95,7 @@
           "passed": true,
           "score": 1.0,
           "reasoning": "Two runs on identical input produced byte-identical output",
-          "duration_seconds": 19.31,
+          "duration_seconds": 31.06,
           "error": null
         },
         {
@@ -38,7 +105,7 @@
           "passed": true,
           "score": 1.0,
           "reasoning": "All 2 talking points are clean plain sentences",
-          "duration_seconds": 9.98,
+          "duration_seconds": 15.34,
           "error": null
         },
         {
@@ -48,7 +115,7 @@
           "passed": true,
           "score": 1.0,
           "reasoning": "Executive summary references 2/3 checked grounding signals from real account data",
-          "duration_seconds": 9.52,
+          "duration_seconds": 14.91,
           "error": null
         },
         {
@@ -58,7 +125,7 @@
           "passed": true,
           "score": 1.0,
           "reasoning": "[judge: YES] The explanation provides meaningful context by inferring potential churn intent, which is crucial for assessing account health.",
-          "duration_seconds": 12.57,
+          "duration_seconds": 18.48,
           "error": null
         },
         {
@@ -68,7 +135,7 @@
           "passed": true,
           "score": 1.0,
           "reasoning": "Correctly produced zero risk flags for an account with zero real candidates - no fabrication",
-          "duration_seconds": 16.18,
+          "duration_seconds": 22.88,
           "error": null
         },
         {
