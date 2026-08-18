@@ -9,6 +9,26 @@ provided mock dataset (500 tickets, 50 accounts, 9 KB docs).
 for schema validation. No vector DB — plain numpy cosine similarity over a
 small (~86 chunk) knowledge base.
 
+## Highlights
+
+- Built a fully local AI pipeline (Ollama + sentence-transformers, zero
+  external API calls) handling ticket triage, KB retrieval, and account
+  risk summarization across 500 tickets / 50 accounts.
+- Designed a structural anti-hallucination guarantee for risk flagging:
+  quotes are extracted via non-LLM keyword matching before the LLM ever
+  runs, and the LLM's output schema has no field capable of holding quote
+  text — fabrication is prevented by the schema, not just by prompting.
+- Built a custom eval harness (13 test cases, rule-based + LLM-as-judge,
+  adversarial coverage) that caught two real production bugs during
+  development — a retry-exhaustion failure and a schema field-confusion
+  bug — both fixed and re-verified with before/after evidence.
+- Verified deterministic output (temperature=0, fixed seed) end-to-end,
+  including through the REST layer, via an automated byte-identical
+  diff check across repeated runs.
+- Surfaced and worked around a real data-quality issue in the provided
+  dataset (unreliable foreign key), documented with the verification
+  method used to catch it.
+
 ## Setup
 
 ```bash
